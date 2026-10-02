@@ -1,0 +1,836 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>AI Form Corrector</title>
+    <style>
+      :root {
+        --bg: #fff5f5;
+        --bg-strong: #ffe1e1;
+        --panel: rgba(255, 255, 255, 0.94);
+        --panel-strong: #ffffff;
+        --line: rgba(220, 38, 38, 0.14);
+        --text: #1f2937;
+        --muted: #6b7280;
+        --accent: #dc2626;
+        --accent-strong: #991b1b;
+        --green: #16a34a;
+        --amber: #d97706;
+        --red: #dc2626;
+        --shadow: rgba(127, 29, 29, 0.18);
+      }
+
+      * { box-sizing: border-box; }
+
+      html, body {
+        margin: 0;
+        min-height: 100%;
+        font-family: Arial, Helvetica, sans-serif;
+        background: linear-gradient(135deg, #fff5f5 0%, #fee2e2 30%, #fca5a5 100%);
+        color: var(--text);
+      }
+
+      body {
+        min-height: 100vh;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        padding: 28px 18px;
+      }
+
+      .app {
+        width: min(1200px, 100%);
+        background: var(--panel);
+        border: 1px solid var(--line);
+        border-radius: 28px;
+        box-shadow: 0 26px 70px var(--shadow);
+        overflow: hidden;
+      }
+
+      .topbar {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        padding: 22px 30px;
+        background: linear-gradient(135deg, #fff1f2 0%, #fee2e2 100%);
+        border-bottom: 1px solid var(--line);
+      }
+
+      .brand {
+        display: flex;
+        align-items: center;
+        gap: 12px;
+        font-weight: 800;
+        letter-spacing: 0.03em;
+      }
+
+      .brand-mark {
+        width: 40px;
+        height: 40px;
+        border-radius: 12px;
+        background: linear-gradient(135deg, #ef4444, var(--accent));
+        color: white;
+        display: grid;
+        place-items: center;
+        font-size: 0.9rem;
+      }
+
+      .account {
+        width: 42px;
+        height: 42px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        border-radius: 50%;
+        background: linear-gradient(135deg, #fee2e2 0%, #fca5a5 100%);
+        color: var(--accent-strong);
+        font-weight: 800;
+        box-shadow: 0 8px 18px rgba(220, 38, 38, 0.12);
+      }
+
+      .content {
+        display: grid;
+        grid-template-columns: 1.35fr 0.85fr;
+        gap: 24px;
+        padding: 30px;
+      }
+
+      .panel {
+        background: var(--panel-strong);
+        border: 1px solid var(--line);
+        border-radius: 22px;
+        padding: 26px;
+      }
+
+      .eyebrow {
+        display: inline-block;
+        padding: 8px 12px;
+        border-radius: 999px;
+        background: rgba(220, 38, 38, 0.08);
+        color: var(--accent);
+        font-size: 0.74rem;
+        letter-spacing: 0.08em;
+        text-transform: uppercase;
+        font-weight: 800;
+      }
+
+      h1 {
+        margin: 18px 0 12px;
+        font-size: clamp(2.4rem, 4vw, 4rem);
+        line-height: 1.06;
+        letter-spacing: -0.05em;
+      }
+
+      .subtitle {
+        margin: 0 0 24px;
+        color: var(--muted);
+        font-size: 1.02rem;
+        line-height: 1.7;
+      }
+
+      .upload-box {
+        position: relative;
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 16px;
+        padding: 20px 18px;
+        border: 2px dashed rgba(220, 38, 38, 0.35);
+        border-radius: 18px;
+        background: rgba(254, 226, 226, 0.65);
+        cursor: pointer;
+        transition: border-color 0.2s ease, background 0.2s ease, transform 0.2s ease;
+      }
+
+      .upload-box.dragover {
+        border-color: var(--accent);
+        background: rgba(248, 113, 113, 0.14);
+        transform: translateY(-1px);
+      }
+
+      .upload-meta {
+        display: flex;
+        flex-direction: column;
+        gap: 7px;
+        min-width: 0;
+      }
+
+      .upload-meta strong {
+        font-size: 1.08rem;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        white-space: nowrap;
+      }
+
+      .upload-meta span {
+        color: var(--muted);
+        font-size: 0.88rem;
+      }
+
+      .primary-btn,
+      .secondary-btn {
+        border: none;
+        border-radius: 12px;
+        padding: 13px 18px;
+        font-size: 0.96rem;
+        font-weight: 700;
+        cursor: pointer;
+      }
+
+      .primary-btn {
+        background: linear-gradient(135deg, #ef4444, var(--accent));
+        color: white;
+        box-shadow: 0 12px 25px rgba(220, 38, 38, 0.18);
+      }
+
+      .secondary-btn {
+        background: #fff5f5;
+        border: 1px solid var(--line);
+        color: var(--text);
+      }
+
+      .hidden-input {
+        display: none;
+      }
+
+      .action-row {
+        display: flex;
+        gap: 12px;
+        margin-top: 20px;
+        flex-wrap: wrap;
+      }
+
+      .exercise-select {
+        appearance: none;
+        background: #fff5f5;
+        border: 1px solid var(--line);
+        border-radius: 12px;
+        color: var(--text);
+        padding: 13px 42px 13px 16px;
+        font-size: 0.97rem;
+        font-weight: 600;
+        min-width: 210px;
+        cursor: pointer;
+        background-image: linear-gradient(45deg, transparent 50%, var(--accent) 50%), linear-gradient(135deg, var(--accent) 50%, transparent 50%);
+        background-position: calc(100% - 18px) calc(50% - 3px), calc(100% - 12px) calc(50% - 3px);
+        background-size: 6px 6px, 6px 6px;
+        background-repeat: no-repeat;
+      }
+
+      .status-grid {
+        display: grid;
+        grid-template-columns: repeat(3, minmax(120px, 1fr));
+        gap: 12px;
+        margin-top: 28px;
+      }
+
+      .status-box {
+        padding: 16px 12px;
+        border-radius: 14px;
+        text-align: center;
+        border: 1px solid var(--line);
+        background: rgba(255, 255, 255, 0.7);
+      }
+
+      .status-box strong {
+        display: block;
+        margin-bottom: 8px;
+        font-size: 0.9rem;
+      }
+
+      .status-box span {
+        font-size: 0.74rem;
+        color: var(--muted);
+      }
+
+      .status-box.red { border-color: rgba(220, 38, 38, 0.4); }
+      .status-box.amber { border-color: rgba(217, 119, 6, 0.4); }
+      .status-box.green { border-color: rgba(22, 163, 74, 0.4); }
+
+      .result-box {
+        display: flex;
+        flex-direction: column;
+        gap: 18px;
+      }
+
+      .result-label {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        width: fit-content;
+        padding: 8px 12px;
+        border-radius: 999px;
+        font-size: 0.78rem;
+        font-weight: 800;
+        letter-spacing: 0.08em;
+        text-transform: uppercase;
+      }
+
+      .tier-box {
+        display: grid;
+        grid-template-columns: 90px 1fr;
+        gap: 12px;
+        align-items: center;
+        padding: 12px 14px;
+        border-radius: 16px;
+        background: linear-gradient(135deg, #fff1f2 0%, #fef2f2 100%);
+        border: 1px solid var(--line);
+      }
+
+      .tier-portrait {
+        width: 90px;
+        height: 90px;
+        border-radius: 18px;
+        display: grid;
+        place-items: center;
+        font-size: 2.1rem;
+        background: linear-gradient(135deg, #fde68a 0%, #fca5a5 100%);
+        box-shadow: inset 0 0 0 3px rgba(255,255,255,0.4), 0 12px 20px rgba(0,0,0,0.08);
+      }
+
+      .tier-rank {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        min-width: 80px;
+        padding: 6px 10px;
+        border-radius: 999px;
+        font-size: 0.68rem;
+        font-weight: 900;
+        letter-spacing: 0.08em;
+        text-transform: uppercase;
+        color: white;
+      }
+
+      .tier-rank.noob { background: linear-gradient(135deg, #a3a3a3, #71717a); }
+      .tier-rank.morty { background: linear-gradient(135deg, #f59e0b, #d97706); }
+      .tier-rank.edger { background: linear-gradient(135deg, #ef4444, #b91c1c); }
+      .tier-rank.beta { background: linear-gradient(135deg, #64748b, #334155); }
+      .tier-rank.semigod { background: linear-gradient(135deg, #8b5cf6, #7c3aed); }
+      .tier-rank.alien { background: linear-gradient(135deg, #22c55e, #15803d); }
+      .tier-rank.god { background: linear-gradient(135deg, #14b8a6, #0f766e); }
+      .tier-rank.supersaiyan { background: linear-gradient(135deg, #facc15, #f59e0b); }
+      .tier-rank.chad { background: linear-gradient(135deg, #22c55e, #15803d); }
+      .tier-rank.schwarzenegger { background: linear-gradient(135deg, #fb7185, #e11d48); }
+      .tier-rank.saitama { background: linear-gradient(135deg, #60a5fa, #2563eb); }
+
+      .tier-label {
+        display: flex;
+        flex-direction: column;
+        gap: 2px;
+      }
+
+      .tier-label small {
+        color: var(--muted);
+        letter-spacing: 0.06em;
+        text-transform: uppercase;
+      }
+
+      .tier-label strong {
+        font-size: 1rem;
+      }
+
+      .tier-description {
+        margin: 3px 0 0;
+        color: var(--muted);
+        font-size: 0.85rem;
+        line-height: 1.45;
+      }
+
+      .tier-description:empty {
+        display: none;
+      }
+
+      .fireworks-layer {
+        position: fixed;
+        inset: 0;
+        overflow: hidden;
+        pointer-events: none;
+        z-index: 20;
+      }
+
+      .firework-burst {
+        position: absolute;
+        width: 1px;
+        height: 1px;
+      }
+
+      .firework-burst::before {
+        content: "";
+        position: absolute;
+        width: 12px;
+        height: 12px;
+        border-radius: 50%;
+        background: white;
+        box-shadow: 0 0 18px 8px rgba(255, 211, 77, 0.9);
+        animation: firework-flash 850ms ease-out forwards;
+      }
+
+      .firework-spark {
+        position: absolute;
+        width: 5px;
+        height: 11px;
+        border-radius: 5px;
+        background: var(--spark-color);
+        box-shadow: 0 0 9px var(--spark-color);
+        animation: firework-spark 1050ms cubic-bezier(0.12, 0.7, 0.25, 1) forwards;
+      }
+
+      @keyframes firework-flash {
+        0% { opacity: 1; transform: scale(0.2); }
+        35% { opacity: 1; transform: scale(1.3); }
+        100% { opacity: 0; transform: scale(0); }
+      }
+
+      @keyframes firework-spark {
+        0% { opacity: 1; transform: rotate(var(--spark-angle)) translateY(0) scale(1); }
+        100% { opacity: 0; transform: rotate(var(--spark-angle)) translateY(var(--spark-distance)) scale(0.15); }
+      }
+
+      @media (prefers-reduced-motion: reduce) {
+        .firework-burst::before,
+        .firework-spark {
+          animation-duration: 1ms;
+        }
+      }
+
+      .result-label.good {
+        background: rgba(22, 163, 74, 0.12);
+        color: var(--green);
+      }
+
+      .result-label.needs-work {
+        background: rgba(217, 119, 6, 0.12);
+        color: var(--amber);
+      }
+
+      .result-label.poor {
+        background: rgba(220, 38, 38, 0.12);
+        color: var(--red);
+      }
+
+      .score {
+        margin: 0;
+        font-size: clamp(2.4rem, 4vw, 3.3rem);
+        font-weight: 900;
+        letter-spacing: -0.05em;
+      }
+
+      .score span {
+        font-size: 1rem;
+        color: var(--muted);
+        font-weight: 700;
+        letter-spacing: 0;
+      }
+
+      .feedback {
+        margin: 0;
+        color: var(--muted);
+        line-height: 1.75;
+      }
+
+      .mini-card {
+        background: rgba(255, 255, 255, 0.75);
+        border: 1px solid var(--line);
+        border-radius: 16px;
+        padding: 18px;
+      }
+
+      .mini-card h3 {
+        margin: 0 0 8px;
+        font-size: 1rem;
+      }
+
+      .mini-card p {
+        margin: 0;
+        color: var(--muted);
+        line-height: 1.7;
+      }
+
+      .video-preview {
+        display: none;
+        width: 100%;
+        margin-top: 14px;
+        border-radius: 14px;
+        background: #111827;
+        border: 1px solid var(--line);
+      }
+
+      .video-preview.show {
+        display: block;
+      }
+
+      .video-preview video {
+        width: 100%;
+        max-height: 220px;
+        border-radius: 14px;
+        display: block;
+      }
+
+      .loading {
+        display: inline-flex;
+        align-items: center;
+        gap: 8px;
+        color: var(--accent);
+        font-weight: 800;
+      }
+
+      .loading::before {
+        content: "";
+        width: 12px;
+        height: 12px;
+        border: 2px solid rgba(220, 38, 38, 0.25);
+        border-top-color: var(--accent);
+        border-radius: 50%;
+        display: inline-block;
+        animation: spin 0.8s linear infinite;
+      }
+
+      @keyframes spin {
+        to { transform: rotate(360deg); }
+      }
+
+      @media (max-width: 860px) {
+        .content {
+          grid-template-columns: 1fr;
+        }
+
+        .upload-box {
+          flex-direction: column;
+          align-items: flex-start;
+          justify-content: flex-start;
+        }
+
+        .status-grid {
+          grid-template-columns: 1fr;
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <div class="app">
+      <header class="topbar">
+        <div class="brand">
+          <div class="brand-mark">AI</div>
+          <span>AI Form Corrector</span>
+        </div>
+        <div class="account" aria-label="Account">JD</div>
+      </header>
+
+      <main class="content">
+        <section class="panel">
+          <div class="eyebrow">Workout Review</div>
+          <h1>Check your lift form in real time.</h1>
+          <p class="subtitle">
+            Have a friend record your workout at the gym, upload the video, and let AI analyze your posture,
+            movement, and technique.
+          </p>
+
+          <div class="upload-box" id="uploadZone" tabindex="0" role="button" aria-label="Upload video file">
+            <div class="upload-meta">
+              <strong id="uploadFileName">Bench Press Session</strong>
+              <span id="uploadStatus">Drag a video here or click to upload</span>
+            </div>
+            <button class="primary-btn" type="button" id="uploadBtn">Upload Video</button>
+            <input id="videoInput" class="hidden-input" type="file" accept="video/*" />
+          </div>
+
+          <div class="video-preview" id="videoPreviewWrap">
+            <video id="videoPreview" controls playsinline></video>
+          </div>
+
+          <div class="action-row">
+            <select class="exercise-select" id="exerciseSelect" aria-label="Choose exercise">
+              <option value="Bench Press">Bench Press</option>
+              <option value="Barbell Curl">Barbell Curl</option>
+              <option value="Squat">Squat</option>
+              <option value="Deadlift">Deadlift</option>
+              <option value="Push-up">Push-up</option>
+              <option value="Pull-up">Pull-up</option>
+              <option value="Shoulder Press">Shoulder Press</option>
+              <option value="Lunge">Lunge</option>
+              <option value="Romanian Deadlift">Romanian Deadlift</option>
+              <option value="Leg Press">Leg Press</option>
+            </select>
+            <button class="primary-btn" type="button" id="analyzeBtn">Analyze Form</button>
+          </div>
+
+          <div class="status-grid">
+            <div class="status-box red">
+              <strong>Poor</strong>
+              <span>Fix key issues</span>
+            </div>
+            <div class="status-box amber">
+              <strong>Good</strong>
+              <span>Needs work</span>
+            </div>
+            <div class="status-box green">
+              <strong>Perfect</strong>
+              <span>Elite mechanics</span>
+            </div>
+          </div>
+        </section>
+
+        <aside class="panel result-box">
+          <div id="resultBadge" class="result-label good">Good</div>
+
+          <div class="tier-box">
+            <div id="tierPortrait" class="tier-portrait" aria-label="Tier portrait">💪</div>
+            <div class="tier-label">
+              <small>Tier</small>
+              <div id="tierRank" class="tier-rank morty">Morty</div>
+              <strong id="tierName">Morty</strong>
+              <p id="tierDescription" class="tier-description">Morty is weak and addicted to the Noob tier.</p>
+            </div>
+          </div>
+
+          <div>
+            <p class="score" id="scoreValue">89 <span>/ 100</span></p>
+          </div>
+
+          <p class="feedback" id="feedbackText">
+            Your setup is solid, but your bar path and hip drive need a little more control to stay consistent under heavier loads.
+          </p>
+
+          <div class="mini-card">
+            <h3>AI Feedback</h3>
+            <p id="aiInsights">
+              Knees tracking too far inward, elbows slightly flared, and slight back arch at the bottom of the rep.
+            </p>
+          </div>
+        </aside>
+      </main>
+    </div>
+    <div class="fireworks-layer" id="fireworksLayer" aria-hidden="true"></div>
+
+    <script>
+      const exerciseMap = {
+        'Bench Press': {
+          poor: 'Bar path drifted off line, elbows flared too early, and chest lift was inconsistent.',
+          good: 'Your setup was solid, but shoulder stability and bar path need more control.',
+          perfect: 'Excellent scapular control and bar path. Setup and tempo were highly consistent.'
+        },
+        'Barbell Curl': {
+          poor: 'Elbows swung forward and shoulders took over the movement.',
+          good: 'Good curl path, but the elbows should stay tighter to the torso.',
+          perfect: 'Strong elbow position and steady tempo throughout the rep.'
+        },
+        'Squat': {
+          poor: 'You collapsed inward at depth and lost hip drive on the ascent.',
+          good: 'Good depth and brace, but knee tracking and torso angle still need work.',
+          perfect: 'Excellent depth, balance, and strong hip drive through the full range.'
+        },
+        'Deadlift': {
+          poor: 'Back rounded early and hips rose too quickly before the bar left the floor.',
+          good: 'Solid tension, but the lockout and back angle could be more consistent.',
+          perfect: 'Excellent bar path, bracing, and drive off the floor.'
+        },
+        'Push-up': {
+          poor: 'Hips sagged and shoulders lost alignment during the lowering phase.',
+          good: 'Good range of motion, but shoulder position needs more control.',
+          perfect: 'Strong body line and stable shoulder control throughout.'
+        },
+        'Pull-up': {
+          poor: 'Kipping and incomplete range of motion reduced control.',
+          good: 'Good pull, but the scapular position needs to be more controlled.',
+          perfect: 'Smooth pull and excellent shoulder control with full range.'
+        },
+        'Shoulder Press': {
+          poor: 'Lower back arched and the bar path drifted behind the torso.',
+          good: 'Good press, but the ribcage needs more bracing at the bottom.',
+          perfect: 'Very controlled locking pattern with excellent overhead stability.'
+        },
+        'Lunge': {
+          poor: 'Knee caved inward and balance broke during the descent.',
+          good: 'Good form overall, but knee tracking and torso control need slight improvement.',
+          perfect: 'Excellent balance, knee tracking, and trunk engagement.'
+        },
+        'Romanian Deadlift': {
+          poor: 'Back rounded and hamstring stretch was lost too early.',
+          good: 'Solid hinge pattern, but the torso angle needs more consistency.',
+          perfect: 'Excellent hip hinge and stable lumbar posture through the entire set.'
+        },
+        'Leg Press': {
+          poor: 'Heels lifted and knees tracked too far inward.',
+          good: 'Decent control, but foot placement and knee alignment need refinement.',
+          perfect: 'Excellent knee tracking and lower-body stability through the cycle.'
+        }
+      };
+
+      const results = [
+        { label: 'Poor', className: 'poor', score: 54 },
+        { label: 'Good', className: 'good', score: 89 },
+        { label: 'Perfect', className: 'good', score: 97 }
+      ];
+
+      const badge = document.getElementById('resultBadge');
+      const scoreValue = document.getElementById('scoreValue');
+      const feedbackText = document.getElementById('feedbackText');
+      const aiInsights = document.getElementById('aiInsights');
+      const tierRank = document.getElementById('tierRank');
+      const tierName = document.getElementById('tierName');
+      const tierDescription = document.getElementById('tierDescription');
+      const tierPortrait = document.getElementById('tierPortrait');
+      const fireworksLayer = document.getElementById('fireworksLayer');
+      const analyzeBtn = document.getElementById('analyzeBtn');
+      const uploadBtn = document.getElementById('uploadBtn');
+      const uploadZone = document.getElementById('uploadZone');
+      const videoInput = document.getElementById('videoInput');
+      const uploadFileName = document.getElementById('uploadFileName');
+      const uploadStatus = document.getElementById('uploadStatus');
+      const exerciseSelect = document.getElementById('exerciseSelect');
+      const videoPreviewWrap = document.getElementById('videoPreviewWrap');
+      const videoPreview = document.getElementById('videoPreview');
+
+      const tiers = [
+        { name: 'Noob', key: 'noob', icon: '🧢', weight: 30, description: "Don't ever work out like that again." },
+        { name: 'Morty', key: 'morty', icon: '💪', weight: 20, description: 'Morty is weak and addicted to the Noob tier.' },
+        { name: 'Edger', key: 'edger', icon: '🏋️', weight: 11, description: "Not there yet, but you're close." },
+        { name: 'Beta', key: 'beta', icon: '🙂', weight: 7, description: 'A normal man. Decent set.' },
+        { name: 'Semi God', key: 'semigod', icon: '🔥', weight: 5, description: 'Near perfect, but still needs improvement. About 60% stronger.' },
+        { name: 'Super Saiyan', key: 'supersaiyan', icon: '🌟', weight: 3, description: 'Powering up! Keep tightening your form to reach the next level.' },
+        { name: 'Alien', key: 'alien', icon: '👽', weight: 2, description: 'No human should be this strong.' },
+        { name: 'Chad', key: 'chad', icon: '🦾', weight: 1, description: 'Plastic surgery is afraid of you.' },
+        { name: 'God', key: 'god', icon: '⚡', weight: 0.8, description: '' },
+        { name: 'Arnold Schwarzenegger', key: 'schwarzenegger', icon: '💥', weight: 0.2, description: "Straight-up beast. Man's greatest warrior." },
+        { name: 'Saitama', key: 'saitama', icon: '👊', weight: 20, description: "You're gonna be bald now." }
+      ];
+
+      function launchFireworks() {
+        if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
+
+        fireworksLayer.replaceChildren();
+        const colors = ['#ff3b30', '#ffd60a', '#34c759', '#0a84ff', '#ff2d55', '#ffffff'];
+
+        for (let burstIndex = 0; burstIndex < 4; burstIndex += 1) {
+          const burst = document.createElement('div');
+          burst.className = 'firework-burst';
+          burst.style.left = `${15 + Math.random() * 70}%`;
+          burst.style.top = `${18 + Math.random() * 48}%`;
+          burst.style.animationDelay = `${burstIndex * 120}ms`;
+
+          for (let sparkIndex = 0; sparkIndex < 18; sparkIndex += 1) {
+            const spark = document.createElement('i');
+            spark.className = 'firework-spark';
+            spark.style.setProperty('--spark-angle', `${sparkIndex * 20}deg`);
+            spark.style.setProperty('--spark-distance', `${55 + Math.random() * 85}px`);
+            spark.style.setProperty('--spark-color', colors[Math.floor(Math.random() * colors.length)]);
+            burst.append(spark);
+          }
+
+          fireworksLayer.append(burst);
+        }
+
+        window.setTimeout(() => fireworksLayer.replaceChildren(), 1500);
+      }
+
+      function handleFileSelection(fileList) {
+        if (!fileList || fileList.length === 0) return;
+
+        const file = fileList[0];
+        if (file.type.startsWith('video/')) {
+          uploadFileName.textContent = file.name;
+          uploadStatus.textContent = 'Video ready for analysis';
+
+          const url = URL.createObjectURL(file);
+          videoPreview.src = url;
+          videoPreviewWrap.classList.add('show');
+        } else {
+          uploadFileName.textContent = 'Unsupported file type';
+          uploadStatus.textContent = 'Please upload a video';
+        }
+      }
+
+      function openFilePicker() {
+        videoInput.click();
+      }
+
+      uploadBtn.addEventListener('click', (event) => {
+        event.stopPropagation();
+        openFilePicker();
+      });
+
+      uploadZone.addEventListener('click', (event) => {
+        if (event.target !== uploadBtn) {
+          openFilePicker();
+        }
+      });
+
+      uploadZone.addEventListener('keydown', (event) => {
+        if (event.key === 'Enter' || event.key === ' ') {
+          event.preventDefault();
+          openFilePicker();
+        }
+      });
+
+      ['dragenter', 'dragover'].forEach((type) => {
+        uploadZone.addEventListener(type, (event) => {
+          event.preventDefault();
+          uploadZone.classList.add('dragover');
+        });
+      });
+
+      ['dragleave', 'drop'].forEach((type) => {
+        uploadZone.addEventListener(type, (event) => {
+          event.preventDefault();
+          uploadZone.classList.remove('dragover');
+        });
+      });
+
+      uploadZone.addEventListener('drop', (event) => {
+        handleFileSelection(event.dataTransfer.files);
+      });
+
+      videoInput.addEventListener('change', () => {
+        handleFileSelection(videoInput.files);
+      });
+
+      analyzeBtn.addEventListener('click', () => {
+        const selectedExercise = exerciseSelect.value;
+        const next = results[Math.floor(Math.random() * results.length)];
+
+        badge.textContent = next.label;
+        badge.className = 'result-label ' + next.className;
+        scoreValue.innerHTML = next.score + ' <span>/ 100</span>';
+
+        const tierRoll = Math.random() * 100;
+        let tier;
+        if (tierRoll >= 100 - tiers[10].weight) {
+          tier = tiers[10];
+        } else {
+          let cumulativeWeight = 0;
+          tier = tiers.slice(0, 10).find((candidate) => {
+            cumulativeWeight += candidate.weight;
+            return tierRoll < cumulativeWeight;
+          });
+        }
+
+        tierRank.textContent = tier.name;
+        tierRank.className = 'tier-rank ' + tier.key;
+        tierName.textContent = tier.name;
+        tierDescription.textContent = tier.description;
+        tierPortrait.textContent = tier.icon;
+        if (tier.key === 'schwarzenegger' || tier.key === 'saitama') launchFireworks();
+
+        const exerciseAdvice = exerciseMap[selectedExercise];
+        const adviceText = next.label === 'Poor'
+          ? exerciseAdvice.poor
+          : next.label === 'Good'
+            ? exerciseAdvice.good
+            : exerciseAdvice.perfect;
+
+        feedbackText.textContent = `${selectedExercise} review: your form is ${next.label.toLowerCase()} and needs focused adjustments.`;
+        aiInsights.textContent = adviceText;
+
+        analyzeBtn.classList.add('loading');
+        analyzeBtn.textContent = 'Analyzing...';
+
+        window.setTimeout(() => {
+          analyzeBtn.classList.remove('loading');
+          analyzeBtn.textContent = 'Analyze Form';
+        }, 1200);
+      });
+    </script>
+  </body>
+</html>
