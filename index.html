@@ -6,19 +6,19 @@
     <title>AI Form Corrector</title>
     <style>
       :root {
-        --bg: #fff5f5;
-        --bg-strong: #ffe1e1;
-        --panel: rgba(255, 255, 255, 0.94);
-        --panel-strong: #ffffff;
-        --line: rgba(220, 38, 38, 0.14);
-        --text: #1f2937;
-        --muted: #6b7280;
-        --accent: #dc2626;
-        --accent-strong: #991b1b;
+        --bg: #090909;
+        --bg-strong: #1a090c;
+        --panel: rgba(17, 17, 17, 0.97);
+        --panel-strong: #151515;
+        --line: rgba(239, 35, 60, 0.28);
+        --text: #f5f5f5;
+        --muted: #a1a1aa;
+        --accent: #ef233c;
+        --accent-strong: #b51224;
         --green: #16a34a;
         --amber: #d97706;
         --red: #dc2626;
-        --shadow: rgba(127, 29, 29, 0.18);
+        --shadow: rgba(0, 0, 0, 0.65);
       }
 
       * { box-sizing: border-box; }
@@ -27,7 +27,7 @@
         margin: 0;
         min-height: 100%;
         font-family: Arial, Helvetica, sans-serif;
-        background: linear-gradient(135deg, #fff5f5 0%, #fee2e2 30%, #fca5a5 100%);
+        background: radial-gradient(ellipse at 12% 8%, rgba(160, 10, 30, 0.28), transparent 38%), linear-gradient(145deg, #080808 0%, #171012 55%, #090909 100%);
         color: var(--text);
       }
 
@@ -53,7 +53,7 @@
         justify-content: space-between;
         align-items: center;
         padding: 22px 30px;
-        background: linear-gradient(135deg, #fff1f2 0%, #fee2e2 100%);
+        background: linear-gradient(135deg, #1b1113 0%, #110b0c 100%);
         border-bottom: 1px solid var(--line);
       }
 
@@ -69,7 +69,7 @@
         width: 40px;
         height: 40px;
         border-radius: 12px;
-        background: linear-gradient(135deg, #ef4444, var(--accent));
+        background: linear-gradient(135deg, #f04452, var(--accent-strong));
         color: white;
         display: grid;
         place-items: center;
@@ -83,8 +83,8 @@
         align-items: center;
         justify-content: center;
         border-radius: 50%;
-        background: linear-gradient(135deg, #fee2e2 0%, #fca5a5 100%);
-        color: var(--accent-strong);
+        background: linear-gradient(135deg, #341117 0%, #5c111d 100%);
+        color: #fff;
         font-weight: 800;
         box-shadow: 0 8px 18px rgba(220, 38, 38, 0.12);
       }
@@ -136,9 +136,9 @@
         justify-content: space-between;
         gap: 16px;
         padding: 20px 18px;
-        border: 2px dashed rgba(220, 38, 38, 0.35);
+        border: 2px dashed rgba(239, 35, 60, 0.55);
         border-radius: 18px;
-        background: rgba(254, 226, 226, 0.65);
+        background: rgba(65, 13, 22, 0.32);
         cursor: pointer;
         transition: border-color 0.2s ease, background 0.2s ease, transform 0.2s ease;
       }
@@ -179,13 +179,13 @@
       }
 
       .primary-btn {
-        background: linear-gradient(135deg, #ef4444, var(--accent));
+        background: linear-gradient(135deg, #f04452, var(--accent-strong));
         color: white;
         box-shadow: 0 12px 25px rgba(220, 38, 38, 0.18);
       }
 
       .secondary-btn {
-        background: #fff5f5;
+        background: #1b1b1b;
         border: 1px solid var(--line);
         color: var(--text);
       }
@@ -203,7 +203,7 @@
 
       .exercise-select {
         appearance: none;
-        background: #fff5f5;
+        background-color: #1b1b1b;
         border: 1px solid var(--line);
         border-radius: 12px;
         color: var(--text);
@@ -230,7 +230,7 @@
         border-radius: 14px;
         text-align: center;
         border: 1px solid var(--line);
-        background: rgba(255, 255, 255, 0.7);
+        background: rgba(255, 255, 255, 0.035);
       }
 
       .status-box strong {
@@ -274,7 +274,7 @@
         align-items: center;
         padding: 12px 14px;
         border-radius: 16px;
-        background: linear-gradient(135deg, #fff1f2 0%, #fef2f2 100%);
+        background: linear-gradient(135deg, #211013 0%, #171112 100%);
         border: 1px solid var(--line);
       }
 
@@ -285,7 +285,7 @@
         display: grid;
         place-items: center;
         font-size: 2.1rem;
-        background: linear-gradient(135deg, #fde68a 0%, #fca5a5 100%);
+        background: linear-gradient(135deg, #57131e 0%, #211013 100%);
         box-shadow: inset 0 0 0 3px rgba(255,255,255,0.4), 0 12px 20px rgba(0,0,0,0.08);
       }
 
@@ -303,17 +303,17 @@
         color: white;
       }
 
-      .tier-rank.noob { background: linear-gradient(135deg, #a3a3a3, #71717a); }
-      .tier-rank.morty { background: linear-gradient(135deg, #f59e0b, #d97706); }
-      .tier-rank.edger { background: linear-gradient(135deg, #ef4444, #b91c1c); }
-      .tier-rank.beta { background: linear-gradient(135deg, #64748b, #334155); }
-      .tier-rank.semigod { background: linear-gradient(135deg, #8b5cf6, #7c3aed); }
-      .tier-rank.alien { background: linear-gradient(135deg, #22c55e, #15803d); }
-      .tier-rank.god { background: linear-gradient(135deg, #14b8a6, #0f766e); }
-      .tier-rank.supersaiyan { background: linear-gradient(135deg, #facc15, #f59e0b); }
-      .tier-rank.chad { background: linear-gradient(135deg, #22c55e, #15803d); }
-      .tier-rank.schwarzenegger { background: linear-gradient(135deg, #fb7185, #e11d48); }
-      .tier-rank.saitama { background: linear-gradient(135deg, #60a5fa, #2563eb); }
+      .tier-rank.noob,
+      .tier-rank.morty,
+      .tier-rank.edger,
+      .tier-rank.beta,
+      .tier-rank.semigod,
+      .tier-rank.alien,
+      .tier-rank.god,
+      .tier-rank.supersaiyan,
+      .tier-rank.chad,
+      .tier-rank.schwarzenegger,
+      .tier-rank.saitama { background: linear-gradient(135deg, #e33445, #790f1c); }
 
       .tier-label {
         display: flex;
@@ -431,7 +431,7 @@
       }
 
       .mini-card {
-        background: rgba(255, 255, 255, 0.75);
+        background: rgba(255, 255, 255, 0.035);
         border: 1px solid var(--line);
         border-radius: 16px;
         padding: 18px;
@@ -487,6 +487,42 @@
         animation: spin 0.8s linear infinite;
       }
 
+      .exercise-select:focus {
+        outline: 2px solid var(--accent);
+        outline-offset: 2px;
+      }
+
+      .exercise-reminder {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 12px;
+        margin-top: 16px;
+        padding: 12px 14px;
+        border: 1px solid var(--line);
+        border-left: 3px solid var(--accent);
+        border-radius: 10px;
+        background: rgba(91, 15, 27, 0.22);
+        color: var(--muted);
+        font-size: 0.84rem;
+        line-height: 1.5;
+      }
+
+      .exercise-reminder[hidden] {
+        display: none;
+      }
+
+      .exercise-reminder button {
+        flex: 0 0 auto;
+        padding: 6px 0 6px 8px;
+        border: 0;
+        background: transparent;
+        color: #ff6675;
+        font: inherit;
+        font-weight: 700;
+        cursor: pointer;
+      }
+
       @keyframes spin {
         to { transform: rotate(360deg); }
       }
@@ -504,6 +540,11 @@
 
         .status-grid {
           grid-template-columns: 1fr;
+        }
+
+        .exercise-reminder {
+          align-items: flex-start;
+          flex-direction: column;
         }
       }
     </style>
@@ -538,6 +579,11 @@
 
           <div class="video-preview" id="videoPreviewWrap">
             <video id="videoPreview" controls playsinline></video>
+          </div>
+
+          <div class="exercise-reminder" id="exerciseReminder" role="note">
+            <span>Choose the workout that matches this video. Changing it without uploading a matching video can make the feedback inaccurate.</span>
+            <button type="button" id="dismissReminder">Don't remind me again</button>
           </div>
 
           <div class="action-row">
@@ -682,6 +728,10 @@
       const exerciseSelect = document.getElementById('exerciseSelect');
       const videoPreviewWrap = document.getElementById('videoPreviewWrap');
       const videoPreview = document.getElementById('videoPreview');
+      const exerciseReminder = document.getElementById('exerciseReminder');
+      const dismissReminder = document.getElementById('dismissReminder');
+      let selectedVideoKey = 'no-video';
+      let currentVideoUrl = null;
 
       const tiers = [
         { name: 'Noob', key: 'noob', icon: '🧢', weight: 30, description: "Don't ever work out like that again." },
@@ -725,16 +775,42 @@
         window.setTimeout(() => fireworksLayer.replaceChildren(), 1500);
       }
 
+      function hashString(value) {
+        let hash = 2166136261;
+        for (let index = 0; index < value.length; index += 1) {
+          hash ^= value.charCodeAt(index);
+          hash = Math.imul(hash, 16777619);
+        }
+        return hash >>> 0;
+      }
+
+      try {
+        exerciseReminder.hidden = window.localStorage.getItem('hideExerciseReminder') === 'true';
+      } catch {
+        exerciseReminder.hidden = false;
+      }
+
+      dismissReminder.addEventListener('click', () => {
+        exerciseReminder.hidden = true;
+        try {
+          window.localStorage.setItem('hideExerciseReminder', 'true');
+        } catch {
+          exerciseReminder.hidden = true;
+        }
+      });
+
       function handleFileSelection(fileList) {
         if (!fileList || fileList.length === 0) return;
 
         const file = fileList[0];
         if (file.type.startsWith('video/')) {
+          selectedVideoKey = `${file.name}:${file.size}:${file.lastModified}`;
           uploadFileName.textContent = file.name;
           uploadStatus.textContent = 'Video ready for analysis';
 
-          const url = URL.createObjectURL(file);
-          videoPreview.src = url;
+          if (currentVideoUrl) URL.revokeObjectURL(currentVideoUrl);
+          currentVideoUrl = URL.createObjectURL(file);
+          videoPreview.src = currentVideoUrl;
           videoPreviewWrap.classList.add('show');
         } else {
           uploadFileName.textContent = 'Unsupported file type';
@@ -788,13 +864,13 @@
 
       analyzeBtn.addEventListener('click', () => {
         const selectedExercise = exerciseSelect.value;
-        const next = results[Math.floor(Math.random() * results.length)];
+        const next = results[hashString(selectedVideoKey) % results.length];
 
         badge.textContent = next.label;
         badge.className = 'result-label ' + next.className;
         scoreValue.innerHTML = next.score + ' <span>/ 100</span>';
 
-        const tierRoll = Math.random() * 100;
+        const tierRoll = (hashString(`${selectedVideoKey}:tier`) / 4294967296) * 100;
         let tier;
         if (tierRoll >= 100 - tiers[10].weight) {
           tier = tiers[10];
